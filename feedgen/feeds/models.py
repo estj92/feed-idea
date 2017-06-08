@@ -59,8 +59,11 @@ class BaseFeed(models.Model):
     include_only_released = models.BooleanField(default=True)
     include_only_departments = models.TextField()  # Should be array
     exclude_departments = models.TextField()  # Should be Array
+    # TODO: Add additional fields to filter on.
 
     def do_include(self, product):
+        # TODO: When using ES, reduce network traffic by building filters
+        # based on these include/excludes.
         if (self.include_only_released and
                 product['releasedate'] > date.today()):
             return False
@@ -96,6 +99,8 @@ class NameMapping(models.Model):
 
 
 class BaseCSVFeed(BaseFeed):
+    # TODO: It will likely make sense to use polymorphic models, as
+    # no additional fields shoild be needed
     def get_named_fields(self, product):
         row = super().get_named_fields(product)
         row = [i[1] for i in row]
@@ -111,3 +116,7 @@ class BaseCSVFeed(BaseFeed):
             for product in get_products():
                 fields = self.get_named_fields(product)
                 writer.writerow(fields)
+
+
+class BaseXMLFeed(BaseFeed):
+    pass
